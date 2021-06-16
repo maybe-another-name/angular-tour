@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 
 import { Observable, of } from 'rxjs';
-import { catchError } from 'rxjs/operators';
+import { catchError, tap } from 'rxjs/operators';
 
 import { Hero } from './hero';
 import { HEROES } from './mock-heroes';
@@ -45,6 +45,17 @@ export class HeroService {
     return this.http
       .put(this.heroesUrl, hero, this.httpWriteOptions)
       .pipe(catchError(this.handleError<Hero>('updateHero')));
+  }
+
+  addHero(hero: Hero): Observable<Hero> {
+    return this.http
+      .post<Hero>(this.heroesUrl, hero, this.httpWriteOptions)
+      .pipe(
+        tap((newHero: Hero) =>
+          this.logToService(`added hero id=${newHero.id}`)
+        ),
+        catchError(this.handleError<Hero>('addHero'))
+      );
   }
 
   private logToService(message: string) {
